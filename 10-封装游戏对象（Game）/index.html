@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		body {
+			background-color: aliceblue;
+		}
+		div {
+			width: 800px;
+			height: 600px;
+			margin: 0px auto;
+		}
+	</style>
+</head>
+<body>
+	<!-- <canvas id="cv"></canvas> -->
+	<div id="fly"></div>
+	
+	<!-- 不管代码是在哪个层级的js文件中，最终代码执行的时候，都是以
+	当前引入js文件的页面为准，在来进行路径的处理！ -->
+	
+	<!-- 引入全局对象文件 -->
+	<script src="js/Fly.js"></script>
+	<!-- 引入小鸟文件 birds.js -->
+	<script src="js/birds.js"></script>
+	<!-- 引入天空文件 sky.js -->
+	<script src="js/sky.js"></script>
+	<!-- 引入陆地文件 land.js -->
+	<script src="js/land.js"></script>
+	<!-- 引入管道文件 pipe.js -->
+	<script src="js/pipe.js"></script>
+	<!-- 引入游戏文件 game.js -->
+	<script src="js/game.js"></script>
+	
+	<script>
+		// var cv = document.querySelector('#cv');
+		// cv.width = 800;
+		// cv.height = 600;
+		// // cv.style.border = '1px solid red';
+		
+		// var ctx = cv.getContext('2d');
+		
+		// var g = new Fly.Game({
+		// 	ctx: ctx
+		// });
+
+		// g.startGame();
+		
+		var g = new Fly.Game( 'fly' );
+		g.startGame();
+		
+	</script>
+</body>
+</html>

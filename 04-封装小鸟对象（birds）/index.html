@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<canvas id="cv"></canvas>
+	
+	<!-- 不管代码是在哪个层级的js文件中，最终代码执行的时候，都是以
+	当前引入js文件的页面为准，在来进行路径的处理！ -->
+	
+	<!-- 引入全局对象文件 -->
+	<script src="js/Fly.js"></script>
+	<!-- 引入小鸟文件 birds.js -->
+	<script src="js/birds.js"></script>
+	
+	<script>
+		var cv = document.querySelector('#cv');
+		cv.width = 800;
+		cv.height = 600;
+		cv.style.border = '1px solid red';
+		
+		var ctx = cv.getContext('2d');
+
+		// 两帧的时间间隔
+		var delta = 0;
+		// 上一帧的时间
+		var lastFrameTime = new Date();
+		// 当前帧时间
+		var curFrameTime = 0;
+		
+		// 封装loadImages函数，用于等待图片加载完成，游戏开始
+	  var imgSrc = ['birds', 'land', 'sky', 'pipe1', 'pipe2'];
+
+	  Fly.loadImages(imgSrc, function( imgList ) {
+	  	
+	  	// 创建小鸟对象
+	  	var bird = new Fly.Bird({
+	  		ctx: ctx,
+	  		img: imgList.birds
+	  	});
+
+			// 绘制天空的变量
+			var sky = imgList.sky;
+			var sky_x1 = 0;
+			var sky_y1 = 0;
+
+			var sky_x2 = sky.width;
+			var sky_y2 = 0;
+
+			var sky_speed = -0.15;
+
+			(function render() {
+				// 获取当前帧时间
+				curFrameTime = new Date();
+				// 两帧时间间隔
+				delta = curFrameTime - lastFrameTime;
+				// 将当前时间赋值给上一帧时间
+				lastFrameTime = curFrameTime;
+
+				// 清空画布
+				ctx.clearRect(0, 0, cv.width, cv.height);
+
+				// 绘制天空背景
+				ctx.drawImage(sky, sky_x1, sky_y1);
+				ctx.drawImage(sky, sky_x2, sky_y2);
+
+				// 天空背景为匀速运动
+				sky_x1 += sky_speed * delta;
+				sky_x2 += sky_speed * delta;
+
+				// 判断天空背景位置
+				if( sky_x1 <= -sky.width ) {
+					sky_x1 += sky.width * 2;
+				}
+				if( sky_x2 <= -sky.width ) {
+					sky_x2 += sky.width * 2;
+				}
+
+				// 渲染小鸟
+				// 因为时间不属于小鸟对象，但是，渲染小鸟的时候，
+				// 需要时间来进行移动的，所以，此处，将delta时间传给了 render 方法
+				bird.render( delta );
+				
+				window.requestAnimationFrame( render );
+			})();
+
+
+			// 给画布绑定单击事件，让小鸟跳起来
+			cv.addEventListener('click', function() {
+				// bird.speed = -0.3;
+				bird.changeSpeed( -0.3 );
+			});
+	  });
+
+		
+	</script>
+</body>
+</html>

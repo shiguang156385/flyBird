@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<canvas id="cv"></canvas>
+	
+	<!-- 不管代码是在哪个层级的js文件中，最终代码执行的时候，都是以
+	当前引入js文件的页面为准，在来进行路径的处理！ -->
+	
+	<!-- 引入全局对象文件 -->
+	<script src="js/Fly.js"></script>
+	<!-- 引入小鸟文件 birds.js -->
+	<script src="js/birds.js"></script>
+	<!-- 引入天空文件 sky.js -->
+	<script src="js/sky.js"></script>
+	<!-- 引入陆地文件 land.js -->
+	<script src="js/land.js"></script>
+	<!-- 引入管道文件 pipe.js -->
+	<script src="js/pipe.js"></script>
+	
+	<script>
+		var cv = document.querySelector('#cv');
+		cv.width = 800;
+		cv.height = 600;
+		cv.style.border = '1px solid red';
+		
+		var ctx = cv.getContext('2d');
+		
+		// 两帧的时间间隔
+		var delta = 0;
+		// 上一帧的时间
+		var lastFrameTime = new Date();
+		// 当前帧时间
+		var curFrameTime = 0;
+		// 用来存放游戏中所有的角色（对象）
+		var rolesList = [];
+		// 图片资源
+	  var imgSrc = ['birds', 'land', 'sky', 'pipe1', 'pipe2'];
+	  // 表示游戏是否进行
+	  var isStart = true;
+
+	  Fly.loadImages(imgSrc, function( imgList ) {
+	  	
+	  	// 创建小鸟对象
+	  	var bird = new Fly.Bird({
+	  		ctx: ctx,
+	  		img: imgList.birds
+	  	});
+
+	  	// 创建天空对象
+	  	for(var i = 0; i < 2; i++) {
+	  		var sky = new Fly.Sky({
+	  			ctx: ctx,
+	  			img: imgList.sky,
+	  			x: i * imgList.sky.width
+	  		});
+
+	  		rolesList.push( sky );
+	  	}
+
+	  	// 创建管道对象
+	  	for(var i = 0; i < 6; i++) {
+	  		var pipe = new Fly.Pipe({
+	  			ctx: ctx,
+	  			imgPipeTop: imgList.pipe2,
+	  			imgPipeBottom: imgList.pipe1,
+	  			x: i * imgList.pipe1.width * 3 + 300
+	  		});
+
+	  		rolesList.push( pipe );
+	  	}
+
+	  	// 创建陆地对象
+	  	for(var i = 0; i < 4; i++) {
+	  		var land = new Fly.Land({
+	  			ctx: ctx,
+	  			img: imgList.land,
+	  			x: i * imgList.land.width
+	  		});
+
+	  		rolesList.push( land );
+	  	}
+
+			(function render() {
+				// 获取当前帧时间
+				curFrameTime = new Date();
+				// 两帧时间间隔
+				delta = curFrameTime - lastFrameTime;
+				// 将当前时间赋值给上一帧时间
+				lastFrameTime = curFrameTime;
+
+				// 清空画布
+				ctx.clearRect(0, 0, cv.width, cv.height);
+				ctx.beginPath();
+
+
+				// 渲染所有游戏角色
+				rolesList.forEach(function( role ) {
+					role.render( delta );
+				});
+
+				// 渲染小鸟
+				bird.render( delta );
+				
+				// 小鸟碰撞检测
+				// 1 小鸟超过了画布的最上方法
+				// 2 下鸟碰到陆地
+				// 3 小鸟与管道碰撞
+				/*if( bird.y - 8 <= 0 ) {
+					isStart = false;
+				}
+
+				if( bird.y >= cv.height - imgList.land.height ) {
+					isStart = false;
+				}
+
+				if( ctx.isPointInPath(bird.x, bird.y) ) {
+					isStart = false;
+				}*/
+
+				if( bird.y - 8 <= 0 || (bird.y >= cv.height - imgList.land.height) ||
+					ctx.isPointInPath(bird.x, bird.y) ) {
+					isStart = false;
+				} 
+
+				
+				if( isStart ) {
+					window.requestAnimationFrame( render );
+				}
+			})();
+
+
+			// 给画布绑定单击事件，让小鸟跳起来
+			cv.addEventListener('click', function() {
+				bird.changeSpeed( -0.3 );
+			});
+
+	  });
+
+		
+	</script>
+</body>
+</html>

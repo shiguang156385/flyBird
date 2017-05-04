@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<div id="fly"></div>
+	
+	<!-- 引入全局对象文件 -->
+	<script src="js/Fly.js"></script>
+	<!-- 引入小鸟文件 birds.js -->
+	<script src="js/birds.js"></script>
+	<!-- 引入天空文件 sky.js -->
+	<script src="js/sky.js"></script>
+	<!-- 引入陆地文件 land.js -->
+	<script src="js/land.js"></script>
+	<!-- 引入管道文件 pipe.js -->
+	<script src="js/pipe.js"></script>
+	<!-- 引入游戏文件 game.js -->
+	<script src="js/game.js"></script>
+	
+	<script>
+		// 工厂模式：
+		// 屏蔽了创建对象的过程，没有工厂模式的时候，是使用 new 构造函数 来创建对象
+		// ，但是每次都使用 new，会比较繁琐，也没有达到统一处理所有 实例对象 的目的
+		// 所以，我们使用 工厂模式 来改造创建对象的过程！
+
+		var g = Fly.factory('Game', 'fly');
+		g.startGame();
+
+		/*var g = new Fly.Game( 'fly' );
+		g.startGame();*/
+		
+	</script>
+</body>
+</html>

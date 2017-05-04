@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<canvas id="cv"></canvas>
+
+	<!-- 不管代码是在哪个层级的js文件中，最终代码执行的时候，都是以
+	当前引入js文件的页面为准，在来进行路径的处理！ -->
+	
+	<!-- 引入全局对象文件 -->
+	<script src="js/Fly.js"></script>
+
+	<script>
+		var cv = document.querySelector('#cv');
+		cv.width = 800;
+		cv.height = 600;
+		cv.style.border = '1px solid red';
+		
+		var ctx = cv.getContext('2d');
+		
+
+		// 1 绘制小鸟序列帧动画
+		var img = new Image();
+		img.src = 'images/birds.png';
+		// 记录当前绘制的帧数
+		var frameIndex = 0;
+
+		// 匀加速运动的计算公式：
+		// S = vt + 1/2 * a * t * t
+		// 
+		// 计算瞬时速度
+		// v = v0 + a * t
+
+		// 加速度
+		var a = 0.0005;
+		// 瞬时速度
+		var speed = 0;
+		// 小鸟垂直方向的初始位置
+		var y = 100;
+		// 两帧的时间间隔
+		var delta = 0;
+		// 上一帧的时间
+		var lastFrameTime = new Date();
+		// 当前帧时间
+		var curFrameTime = 0;
+
+		// 最大旋转角度
+		var maxAngle = 45;
+		// 达到最大角度时的速度
+		var maxSpeed = 0.5;
+		// 计算当前旋转角度的公式：
+		// speed / maxSpeed * 45
+		// 
+		// 计算完成后，判断当前旋转角度是否超过 45 度，如果超过了就
+		// 让当前旋转角度为：45
+		var curAngle = 0;
+
+		// 封装loadImages函数，用于等待图片加载完成，游戏开始
+	  var imgSrc = ['birds', 'land', 'sky', 'pipe1', 'pipe2'];
+
+	  Fly.loadImages(imgSrc, function( imgList ) {
+	  	// console.log( imgList );
+	  	var birds = imgList.birds;
+
+	  	var imgW = birds.width / 3;
+			var imgH = birds.height;
+
+			// 绘制天空的变量
+			var sky = imgList.sky;
+			var sky_x1 = 0;
+			var sky_y1 = 0;
+
+			var sky_x2 = sky.width;
+			var sky_y2 = 0;
+
+			var sky_speed = -0.15;
+
+			(function render() {
+				// 获取当前帧时间
+				curFrameTime = new Date();
+				// 两帧时间间隔
+				delta = curFrameTime - lastFrameTime;
+				// 将当前时间赋值给上一帧时间
+				lastFrameTime = curFrameTime;
+
+				// 清空画布
+				ctx.clearRect(0, 0, cv.width, cv.height);
+
+				// 绘制天空背景
+				ctx.drawImage(sky, sky_x1, sky_y1);
+				ctx.drawImage(sky, sky_x2, sky_y2);
+
+				// 天空背景为匀速运动
+				sky_x1 += sky_speed * delta;
+				sky_x2 += sky_speed * delta;
+
+				// 判断天空背景位置
+				if( sky_x1 <= -sky.width ) {
+					sky_x1 += sky.width * 2;
+				}
+				if( sky_x2 <= -sky.width ) {
+					sky_x2 += sky.width * 2;
+				}
+
+
+				// 小鸟转动
+				// 保存默认状态
+				ctx.save();
+
+				ctx.translate(100, y);
+
+				// 计算当前速度对应的旋转角度
+				// 因为 speed 是有正负（方向）的，所以，curAngle 就会有方向
+				curAngle = speed / maxSpeed * maxAngle;
+				if( curAngle > 45 ) {
+					curAngle = 45;
+				} else if( curAngle < -45 ) {
+					curAngle = -45;
+				}
+
+				// 根据计算的角度来 旋转
+				ctx.rotate( Fly.toRadian(curAngle) );
+
+				ctx.drawImage(birds, imgW * frameIndex++, 0, imgW, imgH, -1/2*imgW, -1/2*imgH, imgW, imgH);
+
+				// 计算下一帧小鸟的垂直位置
+				// delta 表示时间（两帧的时间间隔）
+				speed = speed + a * delta;
+				// console.log( speed )
+				y = y + (speed * delta + 1/2 * a * Math.pow(delta, 2));
+				frameIndex %= 3;
+
+				// 恢复保存的默认状态
+				ctx.restore();
+				window.requestAnimationFrame( render );
+			})();
+
+	  });
+
+		// 给画布绑定单击事件，让小鸟跳起来
+		cv.addEventListener('click', function() {
+			speed = -0.3;
+		});
+	</script>
+</body>
+</html>
